@@ -12,6 +12,6 @@
   "reportMissingImports": true,
   "reportMissingTypeStubs": false,
 
-  "pythonVersion": "3.11",
+  "pythonVersion": "3.10",
   "pythonPlatform": "Linux"
 }

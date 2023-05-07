@@ -4,11 +4,11 @@
 ## Setup 
 
 Prerequisites
-- Python 3.11
+- Python 3.10
 
 1. Create a virtual environment 
 ```cmd
-python3.11 -m venv venv
+python3.10 -m venv venv
 ```
 2. Install requirements
 ```cmd
