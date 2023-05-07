@@ -1,0 +1,17 @@
+{
+  "include": ["api"],
+
+  "exclude": ["**/__pycache__"],
+
+  "defineConstant": {
+    "DEBUG": true
+  },
+
+  "venv": "venv",
+
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+
+  "pythonVersion": "3.11",
+  "pythonPlatform": "Linux"
+}

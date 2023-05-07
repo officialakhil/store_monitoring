@@ -1,0 +1,4 @@
+-c prod.txt
+black==23.3.0
+ruff==0.0.265
+pyright==1.1.306
