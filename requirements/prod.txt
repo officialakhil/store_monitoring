@@ -4,50 +4,48 @@
 #
 #    pip-compile --output-file=requirements/prod.txt requirements/prod.in
 #
-aiosqlite==0.17.0
-    # via tortoise-orm
 anyio==3.6.2
     # via
     #   starlette
     #   watchfiles
-asyncpg==0.27.0
-    # via tortoise-orm
 click==8.1.3
     # via uvicorn
 fastapi==0.95.1
     # via -r requirements/prod.in
+greenlet==2.0.2
+    # via sqlalchemy
 h11==0.14.0
     # via uvicorn
 httptools==0.5.0
     # via uvicorn
 idna==3.4
     # via anyio
-iso8601==1.1.0
-    # via tortoise-orm
 pydantic==1.10.7
-    # via fastapi
-pypika-tortoise==0.1.6
-    # via tortoise-orm
+    # via
+    #   fastapi
+    #   sqlmodel
 python-dateutil==2.8.2
     # via -r requirements/prod.in
 python-dotenv==1.0.0
     # via uvicorn
-pytz==2023.3
-    # via tortoise-orm
 pyyaml==6.0
     # via uvicorn
 six==1.16.0
     # via python-dateutil
 sniffio==1.3.0
     # via anyio
+sqlalchemy==1.4.41
+    # via sqlmodel
+sqlalchemy2-stubs==0.0.2a34
+    # via sqlmodel
+sqlmodel==0.0.8
+    # via -r requirements/prod.in
 starlette==0.26.1
     # via fastapi
-tortoise-orm[asyncpg]==0.19.3
-    # via -r requirements/prod.in
 typing-extensions==4.5.0
     # via
-    #   aiosqlite
     #   pydantic
+    #   sqlalchemy2-stubs
 uvicorn[standard]==0.22.0
     # via -r requirements/prod.in
 uvloop==0.17.0
