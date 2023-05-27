@@ -3,3 +3,5 @@ uvicorn[standard]==0.22.0
 sqlmodel==0.0.8
 asyncpg==0.27.0
 python-dateutil==2.8.2
+pytz==2023.3
+celery[redis]==5.2.7

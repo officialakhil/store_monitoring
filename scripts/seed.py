@@ -12,7 +12,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))  # For import db to work
 
-from db import (  # noqa: E402
+from backend.db import (  # noqa: E402
     Store,
     StoreBusinessHours,
     StoreStatus,
