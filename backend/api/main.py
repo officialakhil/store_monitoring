@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from api.routers.reports import router as reports_router
 from db import redis
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 PREFIX_V1 = "/api/v1"
 
@@ -17,6 +18,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"]
+)  # TODO: Change this to the frontend URL
 app.include_router(reports_router, prefix=PREFIX_V1)
 
 
