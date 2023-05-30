@@ -1,9 +1,9 @@
 from datetime import datetime, time
 from enum import Enum
 
+from sqlalchemy import BigInteger, Column, DateTime, Time
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, BigInteger, DateTime, Time
 from sqlmodel import Field, SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -66,7 +66,7 @@ class AsyncSessionContextManager:
         )
 
     async def __aenter__(self):
-        self.session = self._async_session()
+        self.session: AsyncSession = self._async_session()
         return self.session
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):

@@ -161,3 +161,5 @@ cython_debug/
 .vscode/
 # Don't push sample data
 data/
+# Don't push reports 
+reports/*.csv
