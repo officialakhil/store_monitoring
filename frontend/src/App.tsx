@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import CircularProgressBar from "./components/CircularProgress";
 
-const BASE_URL = "http://localhost:8000/api/v1";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface GenerateReportResponse {
   message: string;
