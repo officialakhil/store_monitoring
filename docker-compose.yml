@@ -1,0 +1,60 @@
+version: '3.8'
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - reports_data_volume:/loop/reports
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://akhiltulluri:loop_123@postgres:5432/loop
+      - REDIS_HOST=redis
+    depends_on:
+      postgres:
+          condition: service_healthy
+      redis:
+          condition: service_healthy
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
+  redis:
+    image: redis/redis-stack:latest
+    volumes:
+      - redis_volume:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=akhiltulluri
+      - POSTGRES_DB=loop
+      - POSTGRES_PASSWORD=loop_123
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d loop -U akhiltulluri"]
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+  
+  arq:
+    build: 
+      context: ./backend
+      dockerfile: Worker.Dockerfile
+    volumes:
+      - reports_data_volume:/loop/reports
+    environment:
+      - REDIS_HOST=redis
+      - DATABASE_URL=postgresql+asyncpg://akhiltulluri:loop_123@postgres:5432/loop
+    depends_on:
+      - redis
+      - postgres
+volumes:
+  redis_volume:
+  postgres_volume:
+  reports_data_volume:

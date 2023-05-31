@@ -66,7 +66,7 @@ async def get_report(report_id: str):
     elif job_status == JobStatus.complete:
         # File response
         OUTPUT_FILE_PATH = (
-            Path(__file__).parent.parent.parent.parent / f"reports/{job.job_id}.csv"
+            Path(__file__).parent.parent.parent / f"reports/{job.job_id}.csv"
         )
 
         return FileResponse(

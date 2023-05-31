@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -356,7 +357,7 @@ async def calculate_uptime_downtime_async(
         print(f"Skipping {skip} stores as they were already processed")
     count = skip
 
-    OUTPUT_FILE_PATH = Path(__file__).parent.parent / f"reports/{ctx['job_id']}.csv"
+    OUTPUT_FILE_PATH = Path(__file__).parent / f"reports/{ctx['job_id']}.csv"
     async with AsyncSessionContextManager() as session:
         # This is the only table that has all store ids
         get_store_ids = select(StoreStatus.store_id).distinct().offset(skip)
@@ -390,5 +391,5 @@ async def calculate_uptime_downtime_async(
 
 
 class WorkerSettings:
-    redis_settings = RedisSettings()
+    redis_settings = RedisSettings(host=os.getenv("REDIS_HOST", "localhost"))
     functions = [calculate_uptime_downtime_async]

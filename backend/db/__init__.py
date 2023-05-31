@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, time
 from enum import Enum
 
@@ -50,7 +51,7 @@ class Store(SQLModel, table=True):
 
 
 async_engine = create_async_engine(
-    "postgresql+asyncpg://akhiltulluri@localhost:5432/loop"
+    os.getenv("DATABASE_URL", "postgresql+asyncpg://akhiltulluri@localhost:5432/loop")
 )
 
 

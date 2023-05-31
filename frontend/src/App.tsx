@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CircularProgressBar from "./components/CircularProgress";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -25,6 +25,8 @@ function App() {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const intervalRef = useRef<number | null>(null);
+
   const generateReport = async () => {
     setError(null);
     setReportGenerationStatus(false);
@@ -39,14 +41,16 @@ function App() {
   useEffect(() => {
     if (!report) return;
 
-    const interval = setInterval(async () => {
+    if (reportGenerationStatus) return;
+
+    intervalRef.current = setInterval(async () => {
       const resp = await fetch(
         `${BASE_URL}/reports/get_report?report_id=${report}`
       );
 
       if (!resp.ok) {
         setError("Something went wrong");
-        clearInterval(interval);
+        clearInterval(intervalRef.current!);
         return;
       }
 
@@ -58,7 +62,7 @@ function App() {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           total_stores: progress!.total_stores,
         });
-        clearInterval(interval);
+        clearInterval(intervalRef.current!);
         return;
       }
 
@@ -69,9 +73,9 @@ function App() {
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(intervalRef.current!);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report]);
+  }, [report, reportGenerationStatus]);
 
   return (
     <div>

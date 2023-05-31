@@ -1,22 +1,23 @@
+import asyncio
 import csv
 import os.path
 import sys
 import typing
+from datetime import datetime
 from pathlib import Path
-import asyncio
 
 from dateutil.parser import parse
-from datetime import datetime
 from sqlmodel import SQLModel, delete, insert
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))  # For import db to work
 
-from backend.db import (  # noqa: E402
+# ruff: noqa: E402
+from db import (
+    AsyncSessionContextManager,
     Store,
     StoreBusinessHours,
     StoreStatus,
-    AsyncSessionContextManager,
     create_tables,
 )
 
@@ -93,6 +94,7 @@ async def seed_csv(
         next(csv_reader)  # Skip header
 
         rows: list[SQLModel] = []
+        count = 0
 
         for row in csv_reader:
             kwargs = {arg: getter(row) for arg, getter in csv_map.items()}
@@ -103,11 +105,15 @@ async def seed_csv(
                 # session.add_all(rows)
                 await session.exec(insert(model), rows)  # This takes ~3 mins
                 await session.commit()
+                count += len(rows)
+                print(f"Inserted {count} rows", end="\r")
                 rows = []
 
         if len(rows) > 0:
             await session.exec(insert(model), rows)
             await session.commit()
+            count += len(rows)
+            print(f"Inserted {count} rows", end="\r")
 
 
 if __name__ == "__main__":
