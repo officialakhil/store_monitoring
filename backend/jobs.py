@@ -393,3 +393,5 @@ async def calculate_uptime_downtime_async(
 class WorkerSettings:
     redis_settings = RedisSettings(host=os.getenv("REDIS_HOST", "localhost"))
     functions = [calculate_uptime_downtime_async]
+    # Having more than 1 job at a time is not working properly TODO: investigate
+    max_jobs = 1  # This is to ensure that only one job is processed at a time
