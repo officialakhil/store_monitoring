@@ -41,6 +41,15 @@ class StoreDetails:
 
 
 def within_business_hours(store: StoreDetails, timestamp: datetime) -> bool:
+    """Check if timestamp falls within business hours for the store
+
+    Args:
+        store (StoreDetails): details of the store
+        timestamp (datetime): timestamp to check
+
+    Returns:
+        bool: True if timestamp falls within business hours, False otherwise
+    """
     local_ts = timestamp.astimezone(ZoneInfo(store.store_timezone))
     business_hours = store.store_business_hours.get(local_ts.weekday(), [])
 
@@ -57,6 +66,17 @@ def within_business_hours(store: StoreDetails, timestamp: datetime) -> bool:
 def calculate_business_hours(
     start_time: datetime, end_time: datetime, store: StoreDetails
 ):
+    """Calculate the number of seconds between start_time and end_time
+    such that only business hours are considered
+
+    Args:
+        start_time (datetime): an offset-aware datetime object
+        end_time (datetime): an offset-aware datetime object
+        store (StoreDetails): details of the store
+
+    Returns:
+        float: number of seconds between start_time and end_time
+    """
     ts = start_time
     timez = ZoneInfo(store.store_timezone)
     diff = 0
@@ -134,6 +154,19 @@ def calculate_uptime_downtime_tf(
     status: StoreStatusEnum,
     prev_observation_timestamp: datetime | None,
 ):
+    """Calculate uptime/downtime for a time frame
+
+    Args:
+        store (StoreDetails): details of the store
+        observation_timestamp (datetime): Current observation timestamp
+        current_timestamp (datetime): This is now() or max timestamp
+        status (StoreStatusEnum): Status based on which uptime/downtime is calculated
+        prev_observation_timestamp (datetime | None): Previous observation timestamp
+
+    Returns:
+        tuple[float,float]: A tuple representing seconds of uptime and downtime
+        to be added to the total
+    """
     time_diff = (
         calculate_business_hours(
             observation_timestamp, prev_observation_timestamp, store
@@ -151,6 +184,15 @@ def calculate_uptime_downtime_tf(
 
 
 async def get_timezone(session: AsyncSession, store_id: int):
+    """Get timezone of a store from database. If not found, America/Chicago is returned
+
+    Args:
+        session (AsyncSession): The database session
+        store_id (int): ID of the store
+
+    Returns:
+        str: Timezone string
+    """
     store_timezone = select(Store.timezone_str).where(Store.store_id == store_id)
     timezone_row = await session.exec(store_timezone)
     timezone = timezone_row.one_or_none()
@@ -163,6 +205,17 @@ async def get_timezone(session: AsyncSession, store_id: int):
 
 
 async def get_business_hours_map(session: AsyncSession, store_id: int):
+    """Get business hours of a store from database and arrange them by day of week
+
+    Args:
+        session (AsyncSession): The database session
+        store_id (int): ID of the store
+
+    Returns:
+        dict[int, list[StoreBusinessHours]]: A mapping between
+        day of week and business hours. If no business hours are found for a day,
+        it is filled with 24/7
+    """
     store_business_hours = (
         select(StoreBusinessHours)
         .where(StoreBusinessHours.store_id == store_id)
@@ -196,6 +249,17 @@ async def get_business_hours_map(session: AsyncSession, store_id: int):
 async def calc_uptime_downtime_store(
     session: AsyncSession, store_id: int, current_timestamp: datetime
 ):
+    """Calcuate uptime/downtime for a store
+
+    Args:
+        session (AsyncSession): The database session
+        store_id (int): ID of the store
+        current_timestamp (datetime): This is now() or max timestamp
+
+    Returns:
+        UptimeDowntime: an instance of UptimeDowntime which has
+        different uptime/downtime values for different time frames
+    """
     # Get store timezone
     timezone = await get_timezone(session, store_id)
 
@@ -343,6 +407,18 @@ async def calc_uptime_downtime_store(
 async def calculate_uptime_downtime_async(
     ctx: dict[Any, Any], current_timestamp: datetime
 ) -> int:
+    """Calculate uptime/downtime for all stores.
+    NOTE: This function should be called using arqredis
+    and not directly in an api handler
+    as it is a long running task.
+
+    Args:
+        ctx (dict[Any, Any]): The arq job context
+        current_timestamp (datetime): This is now() or max timestamp
+
+    Returns:
+        int: Number of stores processed
+    """
     redis = ctx["redis"]
     redis = cast(ArqRedis, redis)
 
