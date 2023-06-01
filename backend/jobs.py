@@ -368,35 +368,51 @@ async def calc_uptime_downtime_store(
                 break
 
     # Fill in the gaps
-    if first_observation_before_last_hour and first_observation_last_hour:
+    if first_observation_before_last_hour:
+        # If no observation in last hour, consider current timestamp
+        prev_ts = (
+            (first_observation_last_hour.timestamp_utc)
+            if first_observation_last_hour
+            else current_timestamp
+        )
         uptime, downtime = calculate_uptime_downtime_tf(
             store,
             observation_timestamp=last_hour_start,
             current_timestamp=current_timestamp,
             status=first_observation_before_last_hour.status,
-            prev_observation_timestamp=first_observation_last_hour.timestamp_utc,
+            prev_observation_timestamp=prev_ts,
         )
         uptime_downtime_result.uptime_last_hour += uptime / 60
         uptime_downtime_result.downtime_last_hour += downtime / 60
 
-    if first_observation_before_last_day and first_observation_last_day:
+    if first_observation_before_last_day:
+        prev_ts = (
+            (first_observation_last_day.timestamp_utc)
+            if first_observation_last_day
+            else current_timestamp
+        )
         uptime, downtime = calculate_uptime_downtime_tf(
             store,
             observation_timestamp=last_day_start,
             current_timestamp=current_timestamp,
             status=first_observation_before_last_day.status,
-            prev_observation_timestamp=first_observation_last_day.timestamp_utc,
+            prev_observation_timestamp=prev_ts,
         )
         uptime_downtime_result.uptime_last_day += uptime / (60 * 60)
         uptime_downtime_result.downtime_last_day += downtime / (60 * 60)
 
-    if first_observation_before_last_week and first_observation_last_week:
+    if first_observation_before_last_week:
+        prev_ts = (
+            (first_observation_last_week.timestamp_utc)
+            if first_observation_last_week
+            else current_timestamp
+        )
         uptime, downtime = calculate_uptime_downtime_tf(
             store,
             observation_timestamp=last_week_start,
             current_timestamp=current_timestamp,
             status=first_observation_before_last_week.status,
-            prev_observation_timestamp=first_observation_last_week.timestamp_utc,
+            prev_observation_timestamp=prev_ts,
         )
         uptime_downtime_result.uptime_last_week += uptime / (60 * 60)
         uptime_downtime_result.downtime_last_week += downtime / (60 * 60)
@@ -436,7 +452,14 @@ async def calculate_uptime_downtime_async(
     OUTPUT_FILE_PATH = Path(__file__).parent / f"reports/{ctx['job_id']}.csv"
     async with AsyncSessionContextManager() as session:
         # This is the only table that has all store ids
-        get_store_ids = select(StoreStatus.store_id).distinct().offset(skip)
+        get_store_ids = (
+            select(StoreStatus.store_id)
+            .distinct()
+            .order_by(
+                StoreStatus.store_id
+            )  # This is to ensure that the order is consistent
+            .offset(skip)
+        )
         count_store_ids = select(func.count(distinct(StoreStatus.store_id)))
 
         total_stores: int = (await session.exec(count_store_ids)).one()
